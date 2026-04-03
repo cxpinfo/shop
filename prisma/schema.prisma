@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  OPERATOR
+  FINANCE
+}
+
+enum ProductStatus {
+  DRAFT
+  PUBLISHED
+  HIDDEN
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(OPERATOR)
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Product {
+  id            String        @id @default(cuid())
+  sku           String        @unique
+  name          String
+  slug          String        @unique
+  description   String
+  category      String
+  brand         String?
+  supplier      String?
+  basePrice     Decimal       @db.Decimal(10, 2)
+  marginPercent Decimal       @db.Decimal(5, 2)
+  finalPrice    Decimal       @db.Decimal(10, 2)
+  stock         Int           @default(0)
+  imageUrl      String?
+  status        ProductStatus @default(DRAFT)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model ImportLog {
+  id            String   @id @default(cuid())
+  supplier      String
+  sourceType    String
+  totalItems    Int      @default(0)
+  importedItems Int      @default(0)
+  skippedItems  Int      @default(0)
+  notes         String?
+  createdAt     DateTime @default(now())
+}
